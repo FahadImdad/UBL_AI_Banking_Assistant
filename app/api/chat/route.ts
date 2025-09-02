@@ -5,7 +5,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 class UBLChatbot {
   private tavilyApiKey: string
   private geminiApiKey: string
-  private gemini: GoogleGenerativeAI
+  private gemini?: GoogleGenerativeAI
 
   constructor() {
     this.tavilyApiKey = process.env.TAVILY_API_KEY || ''
@@ -108,6 +108,10 @@ class UBLChatbot {
       let geminiResponse: string
       
       try {
+        if (!this.gemini) {
+          return this.getFallbackResponse(userMessage)
+        }
+        
         const model = this.gemini.getGenerativeModel({ model: 'gemini-1.5-flash' })
         
         const prompt = `You are a helpful UBL banking assistant. You have access to a web search tool to find current information ONLY from UBL Digital website (ubldigital.com).
@@ -158,7 +162,12 @@ UBL Digital website information: "${searchResults}"
 Please provide a helpful, natural response that directly answers the user's question using ONLY the information from ubldigital.com. Be conversational and friendly. If the information is incomplete, suggest visiting ubldigital.com for more details.`
 
         try {
-          const finalResult = await model.generateContent(finalPrompt)
+          if (!this.gemini) {
+            return this.getFallbackResponse(userMessage)
+          }
+          
+          const finalModel = this.gemini.getGenerativeModel({ model: 'gemini-1.5-flash' })
+          const finalResult = await finalModel.generateContent(finalPrompt)
           const finalResponse = await finalResult.response
           return finalResponse.text()
         } catch (finalError) {
@@ -178,9 +187,11 @@ Please provide a helpful, natural response that directly answers the user's ques
 }
 
 export async function POST(request: NextRequest) {
+  let message: string = ''
   try {
     console.log('API Route called')
-    const { message } = await request.json()
+    const requestData = await request.json()
+    message = requestData.message
     console.log('Received message:', message)
 
     if (!message) {
@@ -223,7 +234,7 @@ export async function POST(request: NextRequest) {
           controller.close()
         } catch (error) {
           console.error('Streaming error:', error)
-          const fallbackResponse = chatbot.getFallbackResponse(userInput)
+          const fallbackResponse = chatbot.getFallbackResponse(message)
           controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content: fallbackResponse })}\n\n`))
           controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ done: true })}\n\n`))
           controller.close()
@@ -242,7 +253,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Chat API error:', error)
     const chatbot = new UBLChatbot()
-    const fallbackResponse = chatbot.getFallbackResponse(userInput)
+    const fallbackResponse = chatbot.getFallbackResponse(message || 'Hello')
     return NextResponse.json(
       { message: fallbackResponse },
       { status: 200 }
