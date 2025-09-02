@@ -1,0 +1,43 @@
+{
+  "name": "ubl-chatbot",
+  "version": "1.0.0",
+  "description": "AI-powered banking chatbot for United Bank Limited (UBL) with voice capabilities and real-time streaming",
+  "keywords": ["UBL", "banking", "chatbot", "AI", "Gemini", "Next.js", "TypeScript"],
+  "author": "UBL Digital Team",
+  "license": "MIT",
+  "homepage": "https://github.com/yourusername/ubl-chatbot#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/ubl-chatbot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/ubl-chatbot/issues"
+  },
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "setup": "node setup.js"
+  },
+  "dependencies": {
+    "@types/node": "^20.10.5",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "autoprefixer": "^10.4.16",
+    "framer-motion": "^10.16.16",
+    "lucide-react": "^0.294.0",
+    "next": "^14.2.32",
+    "postcss": "^8.4.32",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwindcss": "^3.3.6",
+    "typescript": "^5.3.3",
+    "@google/generative-ai": "^0.2.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "eslint-config-next": "14.0.4"
+  }
+}
